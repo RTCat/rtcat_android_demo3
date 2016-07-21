@@ -37,6 +37,7 @@ import com.shishimao.sdk.view.VideoPlayerLayout;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -49,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
     VideoPlayer localVideoRenderer;
     String[] audio_device_list;
     Spinner spinner;
-
-
 
     //webrtc
     RTCat cat;
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     public String messageToken;
 
+    boolean isRTCatInit = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,8 +86,17 @@ public class MainActivity extends AppCompatActivity {
         videoRenderLayout.setPosition(50,50,50,50);
 
         cat = new RTCat(this,true,true,true,false, AppRTCAudioManager.AudioDevice.SPEAKER_PHONE,RTCat.CodecSupported.H264, L.VERBOSE);
-        cat.initVideoPlayer(localVideoRenderer);
-
+        cat.addObserver(new RTCat.RTCatObserver() {
+            @Override
+            public void init() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        isRTCatInit = true;
+                    }
+                });
+            }
+        });
     }
 
     public void requestPermission(){
@@ -99,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void connect(View view){
+        if(!isRTCatInit) return;
+
+        cat.initVideoPlayer(localVideoRenderer);
 
         localStream = cat.createStream(true,true,15,RTCat.VideoFormat.Lv0, LocalStream.CameraFacing.FRONT);
 
@@ -211,6 +223,11 @@ public class MainActivity extends AppCompatActivity {
                                         Log.d("Receiver Log ->",object.toString());
                                     }
 
+                                    @Override
+                                    public void file(File file) {
+
+                                    }
+
 
                                     @Override
                                     public void error(Errors errors) {
@@ -285,6 +302,16 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void log(JSONObject object) {
                                     Log.d("Sender Log ->",object.toString());
+                                }
+
+                                @Override
+                                public void fileSending(int i) {
+
+                                }
+
+                                @Override
+                                public void fileFinished() {
+
                                 }
 
                                 @Override
