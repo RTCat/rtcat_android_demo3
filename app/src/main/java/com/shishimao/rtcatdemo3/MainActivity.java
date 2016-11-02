@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -73,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
     public String messageToken;
 
     boolean isRTCatInit = false;
+
+    Button btConnect;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         requestPermission();
         //webrtc
-
+        btConnect = (Button) findViewById(R.id.bt_connect);
         localVideoRenderer = (VideoPlayer) findViewById(R.id.local_video_render);
         videoRenderLayout = (VideoPlayerLayout) findViewById(R.id.local_video_layout);
         videoRenderLayout.setPosition(50,50,50,50);
@@ -97,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+        cat.init();
     }
 
     public void requestPermission(){
@@ -108,7 +112,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void connect(View view){
+
         if(!isRTCatInit) return;
+        btConnect.setEnabled(false);
 
         cat.initVideoPlayer(localVideoRenderer);
 
